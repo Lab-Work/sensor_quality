@@ -69,14 +69,14 @@ class SensorDataStatistics(SensorData):
         # Call helper function
         self.percent_missing_daily(sensors_missingData, start, end, daily_start, daily_end, column, mode)
 
-    def percent_missing_daily(self, sensors_missingData, start, end, daily_start, daily_end, column, mode):
+    def percent_missing_daily(self, sensors_missingData, start, end, daily_start_str, daily_end_str, column, mode):
 
         # The helper function will be called on daily basis
         daily = True
 
         # Set the start and end times in datetime format
-        start = datetime.strptime(start, "%m/%d/%y %H:%M")
-        end = datetime.strptime(end, "%m/%d/%y %H:%M")
+        start = datetime.strptime(start, "%m/%d/%Y %H:%M")
+        end = datetime.strptime(end, "%m/%d/%Y %H:%M")
 
         # Set a row not to go over to in the for loop
         max_row = np.shape(self.times_array)[0] - 1
@@ -98,8 +98,8 @@ class SensorDataStatistics(SensorData):
             last_row += 1
 
         # Save the daily start and end strings as datetime
-        daily_start = datetime.strptime(daily_start, "%H:%M")
-        daily_end = datetime.strptime(daily_end, "%H:%M")
+        daily_start = datetime.strptime(daily_start_str, "%H:%M")
+        daily_end = datetime.strptime(daily_end_str, "%H:%M")
 
         # Extract the numerical time of the daily start and end times
         daily_start_value = daily_start.hour*60 + daily_start.minute
@@ -162,9 +162,9 @@ class SensorDataStatistics(SensorData):
             if mark_start and mark_end:
                 start_str = self.times_array[start_row]
                 end_str = self.times_array[end_row]
-                print(start_str)
-                start_str = datetime.strptime(start_str, "%m/%d/%Y %H:%M").strftime("%m/%d/%y %H:%M")
-                end_str = datetime.strptime(end_str, "%m/%d/%Y %H:%M").strftime("%m/%d/%y %H:%M")
+                print('Analyzing %s - %s' %(start_str, end_str))
+                start_str = datetime.strptime(start_str, "%m/%d/%Y %H:%M").strftime("%m/%d/%Y %H:%M")
+                end_str = datetime.strptime(end_str, "%m/%d/%Y %H:%M").strftime("%m/%d/%Y %H:%M")
                 suma = suma + self.percent_missing(column, mode, sensors_missingData, start_str, end_str, daily)
                 count += 1
 
@@ -180,13 +180,13 @@ class SensorDataStatistics(SensorData):
         sensors_missingData_array = np.genfromtxt(sensors_missingData, dtype='str', delimiter=',')
         for sensor in sensors_missingData_array:
             print(sensor)
-        print("Missed %.2f%% of the %s data during the daily interval %s - %s between %s - %s." %(percent, mode, daily_start, daily_end, start, end)) 
+        print("Missed %.2f%% of the %s data during the daily interval %s - %s between %s - %s." %(percent, mode, daily_start_str, daily_end_str, start, end)) 
     
     def percent_missing(self, column, mode, sensors_missingData, start, end, daily):
 
         # Set the start and end times in datetime format
-        start = datetime.strptime(start, "%m/%d/%y %H:%M")
-        end = datetime.strptime(end, "%m/%d/%y %H:%M")
+        start = datetime.strptime(start, "%m/%d/%Y %H:%M")
+        end = datetime.strptime(end, "%m/%d/%Y %H:%M")
 
         # Load the sensors that will be analyzed
         # NOTE: The csv file must include at least 2 sensors (bug caused by numpy array)
@@ -285,8 +285,8 @@ class SensorDataStatistics(SensorData):
         print("\n")
 
         # Set the start and end times in datetime format
-        start = datetime.strptime(start, "%m/%d/%y %H:%M")
-        end = datetime.strptime(end, "%m/%d/%y %H:%M")
+        start = datetime.strptime(start, "%m/%d/%Y %H:%M")
+        end = datetime.strptime(end, "%m/%d/%Y %H:%M")
 
         # Load the PAIR of sensors that will be analyzed
         # NOTE: The csv file must include PAIRS of sensors, where the first one is the 'initial' data
@@ -319,12 +319,12 @@ class SensorDataStatistics(SensorData):
 
             # Update the first row of the time interval for the first sensor
             # NOTE: It is assumed that the time interval is within the given data set
-            while datetime.strptime(self.sensor_dict[first_sensor][first_orig, 0], "%m/%d/%y %H:%M") != start:
+            while datetime.strptime(self.sensor_dict[first_sensor][first_orig, 0], "%m/%d/%Y %H:%M") != start:
                 first_orig += 1
 
             # Update the first row of the time interval for the second sensor
             # NOTE: It is assumed that the time interval is within the given data set
-            while datetime.strptime(self.sensor_dict[second_sensor][second_orig, 0], "%m/%d/%y %H:%M") != start:
+            while datetime.strptime(self.sensor_dict[second_sensor][second_orig, 0], "%m/%d/%Y %H:%M") != start:
                 second_orig += 1
 
             # For each row in the time interval
@@ -332,7 +332,7 @@ class SensorDataStatistics(SensorData):
             for row in range(first_orig, max_end):
 
                 # Set the time at the current row in datetime format
-                time = datetime.strptime(self.sensor_dict[first_sensor][row, 0], "%m/%d/%y %H:%M")
+                time = datetime.strptime(self.sensor_dict[first_sensor][row, 0], "%m/%d/%Y %H:%M")
 
                 # If the time falls between the start and end time
                 if time >= start and time <= end:
@@ -347,10 +347,12 @@ class SensorDataStatistics(SensorData):
                         final = self.sensor_dict[second_sensor][row, column].astype(np.float)
 
                         # Add the percent difference to the variable holding all the percent differences
-                        suma += (final - initial)/initial
+                        # The values of 0 are not considered since this would give division by zero
+                        if initial != 0 and initial != '':
+                            suma += (final - initial)/initial
 
-                        # Increase the count of rows considered for this statistic
-                        count += 1
+                            # Increase the count of rows considered for this statistic
+                            count += 1
 
                 # Update the first_orig and second_orig variables so that
                 # the for loop continues with the next row
