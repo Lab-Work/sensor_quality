@@ -1,35 +1,45 @@
 import numpy as np
-import sensor_data
+import sensor_data_2
+import os
+from datetime import datetime as dt
+import time
 
-network = 'I80'
-#network = 'I57I64'
+# Datetime boundaries for the period of interest.
+# Format: "%m/%d/%Y %H:%M"
+initial = '11/1/2014 00:00'
+final = '11/30/2014 23:55'
 
-address = r'C:\Users\Carlos\Documents\GitHub\Sensor_Statistics'
+# Time boundaries for subperiod of interest within larger period.
+# Format: "%H:%M"
+start = '16:30'
+end = '17:30'
 
-# Note: At least two sensors must be in this csv file (glitch)
-sensors_allNetwork = r'\sensors_allNetwork.csv'
-
-# Note: At least two sensors must be in this csv file (glitch)
-sensors_missingData = address + r'\sensors_missingData.csv'
-
-# Note: At least two PAIRS of sensors must be in this csv file (glitch)
-sensors_compareData = address + r'\sensors_compareData.csv'
+# Network: 'I80' or 'I57I64'
+network = 'I57I64'
 
 
-#start = '11/16/2014 17:00'
-#end = '11/16/2014 18:30'
 
-start = '5/28/2015 15:00'
-end = '5/28/2015 18:00'
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
-daily_start = '16:30'
-daily_end = '17:30'
+# Find the path to the current directory and folder
+directory = os.path.dirname(os.path.realpath(__file__))
+folder = directory + '\\' + network
 
-sensors = sensor_data.SensorDataStatistics(address, network, sensors_allNetwork)
+# Load the configuration data files
+all_sensors = np.atleast_1d(np.genfromtxt(directory + r'\all_sensors.csv', dtype='str', delimiter=',', skip_header=1))
+missing_data_sensors = np.atleast_1d(np.genfromtxt(directory + r'\missing_data_sensors.csv', dtype='str', delimiter=',', skip_header=1))
+different_data_sensors = np.atleast_2d(np.genfromtxt(directory + r'\different_data_sensors.csv', dtype='str', delimiter=',', skip_header=1))
 
-sensors.percent_missing_speed(sensors_missingData, start, end)
-sensors.percent_missing_count(sensors_missingData, start, end)
-#sensors.percent_difference_speed(sensors_compareData, start, end)  
-#sensors.percent_difference_count(sensors_compareData, start, end)
-#sensors.percent_missing_speed_daily(sensors_missingData, start, end, daily_start, daily_end)
-#sensors.percent_missing_count_daily(sensors_missingData, start, end, daily_start, daily_end)
+initial = dt.strptime(initial, "%m/%d/%Y %H:%M")
+final = dt.strptime(final, "%m/%d/%Y %H:%M")
+start = (dt.strptime(start, "%H:%M")).time()
+end = (dt.strptime(end, "%H:%M")).time()
+
+sensor_data = sensor_data_2.sensor_statistics(all_sensors, folder)
+sensor_data.percent_missing_speed(missing_data_sensors, initial, final)
+sensor_data.percent_missing_count(missing_data_sensors, initial, final)
+sensor_data.percent_missing_speed_subinterval(missing_data_sensors, initial, final, start, end)
+sensor_data.percent_missing_count_subinterval(missing_data_sensors, initial, final, start, end)
+#sensor_data.percent_difference_speed(different_data_sensors, initial, final)
+#sensor_data.percent_difference_count(different_data_sensors, initial, final)
+#sensor_data.percent_difference_speed(different_data_sensors, initial, final)
