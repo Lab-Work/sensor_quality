@@ -78,6 +78,8 @@ class sensor_statistics:
         # Check only data within intervals of interest.
         # If datum is missing, add 1 to the missing count.
         # Compute the percentage of missing data.
+
+        results = []
         
         column = 1 if mode == 'speed' else 2 if mode == 'count' else 0
         for sensorID in missing_data_sensors:
@@ -90,11 +92,15 @@ class sensor_statistics:
                         if not(datum[column]):
                             missing += 1
                 percent = 100*missing/total
+                results.append(percent)
                 print('Sensor %s is missing %.2f%% of the %s data.' %(sensorID, percent, mode))
             except ZeroDivisionError:
                 print('Sensor %s has no readings for the given interval.' %(sensorID))
             except IndexError:
                 print('Sensor %s is missing 100%% of the %s data.' %(sensorID, mode))
+                results.append(100)
+
+        print('Average percent of missing %s data: %.2f%%' %(mode, np.mean(results)))
 
     def __percent_difference(self, different_data_sensors, initial, final, start, end, mode):
 
@@ -123,6 +129,7 @@ class sensor_statistics:
                         final_sensor_data = np.append(final_sensor_data, datum[column])
 
                 # Initialize difference and count variables, used to calculate percent difference
+                initial_sensor_data, final_sensor_data = initial_sensor_data[1:], final_sensor_data[1:,]
                 difference, count = 0, 0
 
                 # Iterate over the arrays of relevant data and update difference and count

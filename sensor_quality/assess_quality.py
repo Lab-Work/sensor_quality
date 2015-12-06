@@ -9,14 +9,14 @@ import time
 # INPUT PARAMETERS
 # Datetime boundaries for the period of interest.
 # Format: "%m/%d/%Y %H:%M"
-initial = '11/1/2014 00:00'
-final = '11/30/2014 23:55'
+initial = '5/7/2015 7:00'
+final = '5/7/2015 16:30'
 # Time boundaries for subperiod of interest within larger period.
 # Format: "%H:%M"
 start = '16:30'
 end = '17:30'
 # Network: 'I80' or 'I57I64'
-network = 'I57I64'
+network = 'I80'
 
 
 # DO NOT MODIFY
@@ -40,9 +40,9 @@ end = (dt.strptime(end, "%H:%M")).time()
 sensor_quality = sensor_quality.sensor_statistics(all_sensors, folder)
 sensor_quality.percent_missing_speed(missing_data_sensors, initial, final)
 sensor_quality.percent_missing_count(missing_data_sensors, initial, final)
-sensor_quality.percent_missing_speed_subinterval(missing_data_sensors, initial, final, start, end)
-sensor_quality.percent_missing_count_subinterval(missing_data_sensors, initial, final, start, end)
+#sensor_quality.percent_missing_speed_subinterval(missing_data_sensors, initial, final, start, end)
+#sensor_quality.percent_missing_count_subinterval(missing_data_sensors, initial, final, start, end)
 #sensor_quality.percent_difference_speed(different_data_sensors, initial, final)
 #sensor_quality.percent_difference_count(different_data_sensors, initial, final)
 #sensor_quality.percent_difference_speed_subinterval(different_data_sensors, initial, final, start, end)
-sensor_quality.percent_difference_count_subinterval(different_data_sensors, initial, final, start, end)
+#sensor_quality.percent_difference_count_subinterval(different_data_sensors, initial, final, start, end)
