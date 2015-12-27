@@ -5,6 +5,8 @@ This repository contains code that computes simple data quality measures for the
 
 ## 2) License
 
+This software is available under the permissive University of Illinois/NCSA Open Source License.
+
 Copyright (c) 2015 The Board of Trustees of the University of Illinois. All rights reserved
 
 Developed by: Department of Civil and Environmental Engineering University of Illinois at Urbana-Champaign
